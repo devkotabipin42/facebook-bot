@@ -1,4 +1,10 @@
 require('dotenv').config();
+const http = require('http');
+const server = http.createServer((req, res) => {
+  res.writeHead(200);
+  res.end('JobMate Bot Running!');
+});
+server.listen(process.env.PORT || 3000);
 const cron = require('node-cron');
 const { scrapeKumariJob } = require('../scrapers/kumariJobScraper');
 const { scrapeJagirkhoj } = require('../scrapers/jagirkhojScraper');
