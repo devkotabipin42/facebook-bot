@@ -1,0 +1,8 @@
+[phases.setup]
+nixPkgs = ["chromium"]
+
+[phases.install]
+cmds = ["npm install", "PLAYWRIGHT_BROWSERS_PATH=/opt/render/.cache/ms-playwright npx playwright install chromium"]
+
+[start]
+cmd = "node src/facebook/scheduler.js"
