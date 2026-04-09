@@ -1,81 +1,88 @@
-const axios = require('axios');
-const cheerio = require('cheerio');
-require('dotenv').config();
+const { chromium } = require('playwright');
 
 const LUMBINI_KEYWORDS = [
   'butwal', 'bhairahawa', 'siddharthanagar', 'lumbini',
   'rupandehi', 'tilottama', 'devdaha', 'nawalparasi',
   'tansen', 'palpa', 'kapilvastu', 'dang', 'ghorahi',
-  'tulsipur', 'nepalgunj', 'banke', 'bardiya', 'gulmi'
+  'tulsipur', 'nepalgunj', 'banke', 'bardiya', 'gulmi',
+  'arghakhanchi', 'pyuthan', 'rolpa', 'ramgram', 'parasi'
 ];
 
 async function scrapeKumariJob() {
   console.log('KumariJob scraping start...');
+
+  const browser = await chromium.launch({ headless: true });
+  const page = await browser.newPage();
   const allJobs = [];
 
-  for (const keyword of LUMBINI_KEYWORDS) {
-    try {
-      const response = await axios.get(
+  try {
+    for (const keyword of LUMBINI_KEYWORDS) {
+      await page.goto(
         `https://www.kumarijob.com/search?keywords=${keyword}`,
-        {
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-          },
-          timeout: 10000
-        }
+        { waitUntil: 'domcontentloaded', timeout: 30000 }
       );
+      await page.waitForTimeout(2000);
 
-      const $ = cheerio.load(response.data);
-      const jobs = [];
+      const jobs = await page.evaluate(() => {
+        const results = [];
+        const lines = document.body.innerText
+          .split('\n').map(l => l.trim()).filter(l => l.length > 0);
 
-      // Parse job cards
-      $('.rounded-lg').each((i, el) => {
-        const text = $(el).text().trim();
-        if (!text || text.length < 30 || text.length > 500) return;
-
-        const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-        if (lines.length < 7) return;
-        if (lines[0] === 'Trainings' || lines[0] === 'Blogs') return;
-
-        jobs.push({
-          title:    lines[0],
-          company:  lines[1],
-          level:    lines[2],
-          jobType:  lines[4],
-          location: lines[6],
-          salary:   lines[9] || 'Negotiable',
-          link:     `https://www.kumarijob.com/search?keywords=${keyword}`,
-          source:   'KumariJob'
-        });
+        let i = 0;
+        while (i < lines.length) {
+          if (
+            lines[i + 2] && lines[i + 2].startsWith('Location :') &&
+            lines[i + 3] && lines[i + 3].startsWith('Salary :') &&
+            lines[i + 4] && lines[i + 4].startsWith('Deadline :')
+          ) {
+            results.push({
+              title:    lines[i],
+              company:  lines[i + 1],
+              location: lines[i + 2].replace('Location :', '').trim(),
+              salary:   lines[i + 3].replace('Salary :', '').trim(),
+              deadline: lines[i + 4].replace('Deadline :', '').trim(),
+            });
+            i += 6;
+          } else {
+            i++;
+          }
+        }
+        return results;
       });
 
       const filtered = jobs.filter(job => {
         const loc = (job.location || '').toLowerCase();
-        return LUMBINI_KEYWORDS.some(k => loc.includes(k));
+        return LUMBINI_KEYWORDS.some(k => loc.includes(k)) ||
+               loc.includes('lumbini province');
+      });
+
+      filtered.forEach(job => {
+        job.link = `https://www.kumarijob.com/search?keywords=${keyword}`;
+        job.source = 'KumariJob';
       });
 
       allJobs.push(...filtered);
-      console.log(`  Found ${filtered.length} jobs for "${keyword}"`);
-
-    } catch (error) {
-      console.log(`  Error for ${keyword}:`, error.message);
+      console.log(`  Found ${filtered.length} Lumbini jobs for "${keyword}"`);
     }
 
-    // Small delay between requests
-    await new Promise(r => setTimeout(r, 1000));
+    await browser.close();
+
+    const seen = new Set();
+    const unique = allJobs.filter(job => {
+      const key = job.title + job.company;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+
+    console.log(`Total unique Lumbini jobs: ${unique.length}`);
+    return unique;
+
+  } catch (error) {
+    await browser.close();
+    console.error('KumariJob error:', error.message);
+    return [];
   }
-
-  // Remove duplicates
-  const seen = new Set();
-  const unique = allJobs.filter(job => {
-    const key = job.title + job.company;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
-
-  console.log(`Total unique Lumbini jobs: ${unique.length}`);
-  return unique;
 }
 
 module.exports = { scrapeKumariJob };

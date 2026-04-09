@@ -1,5 +1,4 @@
-const axios = require('axios');
-require('dotenv').config();
+const { chromium } = require('playwright');
 
 const LUMBINI_KEYWORDS = [
   'butwal', 'bhairahawa', 'siddharthanagar', 'lumbini',
@@ -11,44 +10,47 @@ const LUMBINI_KEYWORDS = [
 async function scrapeJagirkhoj() {
   console.log('Jagirkhoj scraping start...');
 
+  const browser = await chromium.launch({ headless: true });
+  const page = await browser.newPage();
+
   try {
-    const response = await axios.get('https://jagirkhoj.com/jobs', {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-      },
-      timeout: 15000
+    await page.goto('https://jagirkhoj.com/jobs', {
+      waitUntil: 'networkidle',
+      timeout: 30000
+    });
+    await page.waitForTimeout(4000);
+
+    const jobs = await page.evaluate(() => {
+      const results = [];
+      const lines = document.body.innerText
+        .split('\n').map(l => l.trim()).filter(l => l.length > 0);
+
+      let i = 0;
+      while (i < lines.length) {
+        if (
+          lines[i + 1] && (lines[i + 1].includes('Full Time') || lines[i + 1].includes('Part Time')) &&
+          lines[i + 2] && lines[i + 2].includes('Level') &&
+          lines[i + 3] && lines[i + 3].includes('Salary')
+        ) {
+          results.push({
+            title:    lines[i],
+            jobType:  lines[i + 1],
+            level:    lines[i + 2],
+            salary:   lines[i + 3].replace('Salary:', '').trim(),
+            company:  lines[i + 4] || '',
+            location: lines[i + 5] || '',
+            link:     'https://jagirkhoj.com/jobs',
+            source:   'JagirKhoj'
+          });
+          i += 6;
+        } else {
+          i++;
+        }
+      }
+      return results;
     });
 
-    const text = response.data;
-    const lines = text.replace(/<[^>]*>/g, '\n')
-      .split('\n')
-      .map(l => l.trim())
-      .filter(l => l.length > 0);
-
-    const jobs = [];
-    let i = 0;
-
-    while (i < lines.length) {
-      if (
-        lines[i + 1] && (lines[i + 1].includes('Full Time') || lines[i + 1].includes('Part Time')) &&
-        lines[i + 2] && lines[i + 2].includes('Level') &&
-        lines[i + 3] && lines[i + 3].includes('Salary')
-      ) {
-        jobs.push({
-          title:    lines[i],
-          jobType:  lines[i + 1],
-          level:    lines[i + 2],
-          salary:   lines[i + 3].replace('Salary:', '').trim(),
-          company:  lines[i + 4] || '',
-          location: lines[i + 5] || '',
-          link:     'https://jagirkhoj.com/jobs',
-          source:   'JagirKhoj'
-        });
-        i += 6;
-      } else {
-        i++;
-      }
-    }
+    await browser.close();
 
     const filtered = jobs.filter(job => {
       const loc = (job.location || '').toLowerCase();
@@ -67,6 +69,7 @@ async function scrapeJagirkhoj() {
     return unique;
 
   } catch (error) {
+    await browser.close();
     console.error('JagirKhoj error:', error.message);
     return [];
   }
