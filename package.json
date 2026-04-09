@@ -1,4 +1,12 @@
 {
+  "name": "nepal-job-bot",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "build": "npx playwright install chromium --with-deps",
+    "start": "node src/facebook/scheduler.js"
+  },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.85.0",
     "@google/generative-ai": "^0.24.1",
