@@ -2,21 +2,21 @@ name: JobMate Facebook Bot
 
 on:
   schedule:
-    - cron: '0 2 * * *'   # 7am Nepal time
-    - cron: '0 7 * * *'   # 12pm Nepal time  
-    - cron: '0 10 * * *'  # 3pm Nepal time
-    - cron: '0 13 * * *'  # 6pm Nepal time
-  workflow_dispatch:       # Manual run 
+    - cron: '15 1 * * *'   # 7am Nepal (UTC+5:45)
+    - cron: '15 6 * * *'   # 12pm Nepal
+    - cron: '15 9 * * *'   # 3pm Nepal
+    - cron: '15 12 * * *'  # 6pm Nepal
+  workflow_dispatch:
 
 jobs:
   post-jobs:
     runs-on: ubuntu-latest
     
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
           
