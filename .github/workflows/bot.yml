@@ -1,0 +1,34 @@
+name: JobMate Facebook Bot
+
+on:
+  schedule:
+    - cron: '0 2 * * *'   # 7am Nepal time
+    - cron: '0 7 * * *'   # 12pm Nepal time  
+    - cron: '0 10 * * *'  # 3pm Nepal time
+    - cron: '0 13 * * *'  # 6pm Nepal time
+  workflow_dispatch:       # Manual run 
+
+jobs:
+  post-jobs:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          
+      - name: Install dependencies
+        run: npm install
+        
+      - name: Install Playwright
+        run: npx playwright install chromium --with-deps
+        
+      - name: Run bot
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+          FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
+        run: node index.js
