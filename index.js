@@ -4,7 +4,6 @@ const { scrapeJagirkhoj } = require('./src/scrapers/jagirkhojScraper');
 const { scrapeMerojobLumbini } = require('./src/scrapers/merojobScraper');
 const { formatJobPost } = require('./src/ai/postFormatter');
 const { postToFacebook } = require('./src/facebook/fbPoster');
-const { isAlreadyPosted, savePostedJob } = require('./src/utils/dedupe');
 
 async function main() {
   const [merojobs, kumarijobs, jagirjobs] = await Promise.all([
@@ -16,27 +15,24 @@ async function main() {
   const allJobs = [...merojobs, ...kumarijobs, ...jagirjobs];
   console.log(`Total jobs: ${allJobs.length}`);
 
-  // Filter already posted jobs
-  const newJobs = allJobs.filter(job => !isAlreadyPosted(job));
-  console.log(`New jobs to post: ${newJobs.length}`);
-
-  if (newJobs.length === 0) {
-    console.log('No new jobs today!');
+  if (allJobs.length === 0) {
+    console.log('No jobs found!');
     return;
   }
 
-  // Post first job only
-  const job = newJobs[0];
+  // Pick random job - different every run
+  const randomIndex = Math.floor(Math.random() * Math.min(allJobs.length, 10));
+  const job = allJobs[randomIndex];
+  
   console.log('Posting:', job.title);
 
   const post = await formatJobPost(job);
   console.log('Post preview:\n', post);
 
   const success = await postToFacebook(post);
-
+  
   if (success) {
-    savePostedJob(job);
-    console.log('Saved to posted list!');
+    console.log('Done!');
   }
 }
 
