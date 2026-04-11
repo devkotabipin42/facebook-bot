@@ -6,15 +6,14 @@ const { formatJobPost } = require('./src/ai/postFormatter');
 const { postToFacebook } = require('./src/facebook/fbPoster');
 const { findCompanyDetails } = require('./src/ai/companyResearch');
 const { sendDailyReport } = require('./src/utils/emailReport');
-const { scrapeMerorojgari } = require('./src/scrapers/merorojgariScraper');
+const { isAlreadyPosted, savePostedJob } = require('./src/utils/dedupe');
 const fs = require('fs');
 
 async function main() {
-  const [merojobs, kumarijobs, jagirjobs,merorojgarijobs] = await Promise.all([
+  const [merojobs, kumarijobs, jagirjobs] = await Promise.all([
     scrapeMerojobLumbini(),
     scrapeKumariJob(),
-    scrapeJagirkhoj(),
-    scrapeMerorojgari()
+    scrapeJagirkhoj()
   ]);
 
   const allJobs = [...merojobs, ...kumarijobs, ...jagirjobs];
@@ -22,62 +21,42 @@ async function main() {
 
   if (allJobs.length === 0) return;
 
-  // Shuffle jobs for variety
+  // Shuffle jobs
   const shuffled = allJobs.sort(() => Math.random() - 0.5);
 
-  // Try each job until 90% accuracy found
   for (const job of shuffled) {
-    console.log(`\nChecking: ${job.title} - ${job.company}`);
+    const jobKey = job.title + job.company;
 
-    const companyDetails = await findCompanyDetails(job.company, job.location);
-
-    if (companyDetails.accuracy < 90) {
-      console.log(`Accuracy ${companyDetails.accuracy}% - Skipping, trying next job...`);
+    // Check if already posted
+    const alreadyPosted = await isAlreadyPosted(job);
+    if (alreadyPosted) {
+      console.log(`Already posted: ${job.title} - Skipping`);
       continue;
     }
 
-    // 90%+ found!
+    console.log(`\nChecking: ${job.title} - ${job.company}`);
+    const companyDetails = await findCompanyDetails(job.company, job.location);
+
+    if (companyDetails.accuracy < 90) {
+      console.log(`Accuracy ${companyDetails.accuracy}% - Skipping`);
+      continue;
+    }
+
     console.log(`Accuracy ${companyDetails.accuracy}% - Posting!`);
 
-    // Save report
-    const report = {
-      date: new Date().toLocaleDateString(),
-      job: {
-        title: job.title,
-        company: job.company,
-        location: job.location,
-        salary: job.salary,
-        deadline: job.deadline,
-        applyLink: job.link
-      },
-      companyDetails: companyDetails
-    };
-
-    const reportFile = 'daily_report.json';
-    let reports = [];
-    try { reports = JSON.parse(fs.readFileSync(reportFile, 'utf8')); } catch { reports = []; }
-    reports.push(report);
-    fs.writeFileSync(reportFile, JSON.stringify(reports, null, 2));
-
-    console.log('\n========== COMPANY DETAILS ==========');
-    console.log(`Job      : ${job.title}`);
-    console.log(`Company  : ${companyDetails.companyName || job.company}`);
-    console.log(`Address  : ${companyDetails.address || 'Not found'}`);
-    console.log(`Phone    : ${companyDetails.phone || 'Not found'}`);
-    console.log(`Email    : ${companyDetails.email || 'Not found'}`);
-    console.log(`HR       : ${companyDetails.hrContact || 'Not found'}`);
-    console.log(`Accuracy : ${companyDetails.accuracy}%`);
-    console.log('=====================================\n');
-
-    // Send email report
+    // Send email
     await sendDailyReport(job, companyDetails);
 
     // Post to Facebook
     const post = await formatJobPost(job);
     const success = await postToFacebook(post);
-    if (success) console.log('Posted to Facebook!');
 
-    break; // Stop after first 90%+ job
+    if (success) {
+      await savePostedJob(jobKey);
+      console.log('Posted and saved to dedupe!');
+    }
+
+    break;
   }
 }
 

@@ -39,4 +39,6 @@ jobs:
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
           EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
           EMAIL_TO: ${{ secrets.EMAIL_TO }}
+          GITHUB_TOKEN_GIST: ${{ secrets.GIST_TOKEN  }}
+          GIST_ID: ${{ secrets.GIST_ID }}
         run: node index.js
