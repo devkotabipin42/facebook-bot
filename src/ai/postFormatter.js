@@ -13,8 +13,9 @@ STRICT RULES - FOLLOW EXACTLY:
 2. NO markdown bold (**text**) anywhere
 3. NO underscores (__text__) anywhere  
 4. NO extra sentences or paragraphs
-5. Apply link MUST be: ${job.link}
+5. Apply link MUST be: https://jobmate-two.vercel.app
 6. NEVER mention Play Store or any app download
+7. NEVER mention KumariJob, JagirKhoj or any other job portal name
 
 ═══════════════════════════
 🔥 JOB ALERT | LUMBINI PROVINCE 🔥
@@ -30,7 +31,9 @@ STRICT RULES - FOLLOW EXACTLY:
 के तपाईं यो अवसर खोज्दै हुनुहुन्छ? आजै apply गर्नुस्! 🙏
 
 ✅ Apply गर्नुस्:
-${job.link}
+https://jobmate-two.vercel.app
+
+📲 Contact: +977-974-3474919
 
 ━━━━━━━━━━━━━━━━━━━━━
 📲 Daily jobs को लागि JobMate Follow गर्नुस्!

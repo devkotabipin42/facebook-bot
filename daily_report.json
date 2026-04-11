@@ -1,0 +1,82 @@
+[
+  {
+    "date": "4/11/2026",
+    "job": {
+      "title": "Operations Manager (Hospitality)",
+      "company": "Club De Novo Pvt. Ltd",
+      "location": "Butwal, Nepal",
+      "salary": "Nrs. 80K-100K Monthly...",
+      "deadline": "9 days left",
+      "applyLink": "https://www.kumarijob.com/search?keywords=butwal"
+    },
+    "companyDetails": {
+      "companyName": "Club De Novo Pvt. Ltd",
+      "address": "Kalikanagar 9, De Novo Path, Butwal, Nepal",
+      "phone": "+977-71-438885, +9779802533600, +9779802600779",
+      "email": "clbdenovo@gmail.com",
+      "hrContact": "",
+      "website": "",
+      "accuracy": 90
+    }
+  },
+  {
+    "date": "4/11/2026",
+    "job": {
+      "title": "Receptionist (Bhairahawa)",
+      "company": "Innovative Infinity IT Solutions",
+      "location": "Bhairahawa",
+      "salary": "Nrs. 20k-25k Monthly",
+      "deadline": "4 days left",
+      "applyLink": "https://www.kumarijob.com/search?keywords=bhairahawa"
+    },
+    "companyDetails": {
+      "companyName": "Innovative Infinity IT Solutions",
+      "address": "Near Passport Office, Kathmandu, Nepal, Bhairahawa is not mentioned but Kathmandu is",
+      "phone": "+977 9802721539",
+      "email": "info@iiitsolutions.com",
+      "hrContact": "Manisha Sancheti",
+      "website": "Not Found",
+      "accuracy": 70
+    }
+  },
+  {
+    "date": "4/11/2026",
+    "job": {
+      "title": "Sales Executive (Bhairahawa)",
+      "company": "Innovative Infinity IT Solutions",
+      "location": "Bhairahawa",
+      "salary": "40K-50K Monthly",
+      "deadline": "4 days left",
+      "applyLink": "https://www.kumarijob.com/search?keywords=bhairahawa"
+    },
+    "companyDetails": {
+      "companyName": "Innovative Infinity IT Solutions",
+      "address": "Near Passport Office, Kathmandu, Nepal (also has a location in Bhairahawa is not confirmed but has a location in Birgunj, Nepal)",
+      "phone": "+977 9802721539",
+      "email": "info@iiitsolutions.com",
+      "hrContact": "Manisha Sancheti",
+      "website": "",
+      "accuracy": 80
+    }
+  },
+  {
+    "date": "4/11/2026",
+    "job": {
+      "title": "Executive Chef",
+      "company": "Club De Novo Pvt. Ltd",
+      "location": "Butwal",
+      "salary": "Nrs. Monthly",
+      "deadline": "9 days left",
+      "applyLink": "https://www.kumarijob.com/search?keywords=butwal"
+    },
+    "companyDetails": {
+      "companyName": "Club De Novo Pvt. Ltd",
+      "address": "Kalika Nagar - 11, Denovo Path, Butwal, Nepal",
+      "phone": "+977-71-438885, +9779802533600",
+      "email": "clbdenovo@gmail.com",
+      "hrContact": "",
+      "website": "https://www.hotelassociationnepal.org.np/hotels/club-de-novo",
+      "accuracy": 90
+    }
+  }
+]
