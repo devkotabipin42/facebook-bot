@@ -2,14 +2,9 @@ name: JobMate Facebook Bot
 
 on:
   schedule:
-    - cron: '15 1 * * *'   # 7am Nepal (UTC 1:15)
     - cron: '15 4 * * *'   # 10am Nepal
-    - cron: '15 6 * * *'   # 12pm Nepal
     - cron: '15 8 * * *'   # 2pm Nepal
     - cron: '15 10 * * *'  # 4pm Nepal
-    - cron: '15 12 * * *'  # 6pm Nepal
-    - cron: '15 14 * * *'  # 8pm Nepal
-    - cron: '15 16 * * *'  # 10pm Nepal
   workflow_dispatch:
 
 jobs:
