@@ -23,9 +23,13 @@ async function postToFacebook(message, imageUrl = null) {
     }
 
     const response = await axios.post(
-      `https://graph.facebook.com/v19.0/${pageId}/feed`,
-      postData
-    );
+  `https://graph.facebook.com/v19.0/${pageId}/feed`,
+  {
+    message: message,
+    access_token: token,
+    published: true  // ← add this
+  }
+);
 
     console.log('Posted! Post ID:', response.data.id);
     return true;
